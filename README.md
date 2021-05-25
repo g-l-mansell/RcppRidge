@@ -1,5 +1,5 @@
 # RcppRidge Package
-This package was developed for group project (Bristol Compass CDT), to perform Bayesian penalised ridge regression using Rcpp and parallel programming techniques. The package is demonstrated on an electricity demand dataset.
+This package was developed for a group project (Bristol Compass CDT), to perform Bayesian ridge regression using Rcpp and parallel programming. The package is demonstrated on an electricity demand dataset.
 
 ### Development
 
