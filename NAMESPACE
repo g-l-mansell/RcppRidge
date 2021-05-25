@@ -1,0 +1,4 @@
+
+importFrom(Rcpp, sourceCpp)
+import(RcppArmadillo)
+exportPattern("^[[:alpha:]]+")
