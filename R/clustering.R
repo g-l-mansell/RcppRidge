@@ -1,8 +1,45 @@
-#' K means
+#' Our implementation of principal component analysis (PCA)
 #' 
-#' @param x First value
-#' @param centers
-#' @return vector of groups
+#' Given an data matrix x, a linear projection is applied to maximise sample variation.
+#' The first two prinicpal components are returned.
+#' 
+#' @param x numeric matrix of data, where rows are samples
+#' @param sigma 
+#' @return dataframe of sample projections onto PC1 and PC2
+#' @export
+pca <- function(x, sigma = 1.5) {
+  nodes <- dim(x)[1]
+  
+  dmat <- dist(x)
+  
+  S <- apply(dmat, 1:2, function(x) x / sigma)
+  
+  S_degree <- rowSums(S)
+  normalised_Laplacian <- diag(S_degree^(-1/2)) %*% S %*% diag(S_degree^(-1/2))
+  
+  ev <- eigen(normalised_Laplacian)
+  ev_vector <- ev$vectors[,1:3]
+  
+  for(i in 1:nodes){
+    ev_vector[i,] <- ev_vector[i,] / sqrt(sum(ev_vector[i,]^2))
+  }
+  
+  EP=eigen(var(X))
+  PC=as.matrix(X) %*% as.matrix(EP$vectors)
+  
+  # Return the first two principle components for ploting
+  return(data.frame(PC[, 1], PC[, 2]))
+}
+
+
+
+#' Our implementation of the k-means algorithm
+#' 
+#' Given an data matrix x, samples are clustered into a given number of groups.
+#' 
+#' @param x numeric matrix of data, where rows are samples
+#' @param centers the number of groups
+#' @return vector of integers indicating the group allocations
 #' @export
 k_means <- function(x, centers = 5) {
   n <- nrow(x)
@@ -34,11 +71,14 @@ k_means <- function(x, centers = 5) {
   return(category)
 }
 
-#' Spectral clustering
+#' Our implementation of spectral clustering
 #' 
-#' @param x First value
-#' @param c
-#' @param k
+#' Given a data matrix x, samples are clustered into k groups using a spectral (eigen-) decomposition of the graph Laplacian.
+#' Uses the implementation of kmeans from this package `k_means`.  
+#' 
+#' @param x numeric matrix of data, where rows are samples
+#' @param c 
+#' @param k the number of groups
 #' @return vector of groups
 #' @export
 spectralClustering <- function(x, c = 1, k = 10) {
@@ -63,40 +103,5 @@ spectralClustering <- function(x, c = 1, k = 10) {
 
   clusters <- k_means(Z, centers = k)
   
-  return(clusters$cluster)
-}
-
-#' Spectral clustering
-#' 
-#' @param x First value
-#' @param c
-#' @param k
-#' @return vector of groups
-#' @import ggfortify
-#' @export
-plot_clusters <- function(data, clusters) {
-  pca <- prcomp(data, center = TRUE, scale. = TRUE)
-  data$clusters <- factor(clusters)
-  autoplot(pca, data = data, colour = "clusters") + 
-                theme_classic() + labs(colour = "clusters")
-}
-
-#' Spectral clustering
-#' 
-#' @param x First value
-#' @param c
-#' @param k
-#' @return vector of groups
-#' @export
-elbow_plot_kmeans <- function(x, kmax = 15) {
-  wss <- function(k) {
-    kmeans(scale(x), k, nstart = 10)$tot.withinss
-  }
-  
-  wss_values <- map_dbl(1:kmax, wss)
-  
-  plot(1:kmax, wss_values,
-       type="b", pch = 19, frame = FALSE, 
-       xlab="Number of clusters K",
-       ylab="Total within-clusters sum of squares")
+  return(clusters)
 }

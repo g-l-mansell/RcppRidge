@@ -9,6 +9,8 @@ Package created using:
 
 `usethis::use_rcpp()`
 
+`usethis::use_test("RcppRidge")`
+
 
 To build the package:
 
