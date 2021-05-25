@@ -7,7 +7,6 @@
 
 #include <boost/random/normal_distribution.hpp>
 #include <RcppArmadillo.h>
-#include <Rcpp.h>
 #include <sitmo.h>
 
 #ifdef _OPENMP

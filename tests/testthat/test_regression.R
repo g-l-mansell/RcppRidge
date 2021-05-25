@@ -1,4 +1,4 @@
-context("RidgeRegression")
+context("regression")
 
 #create a dataset with two with one correlated and one uncorrelated variables to check ridge regression works
 
