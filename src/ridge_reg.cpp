@@ -6,9 +6,9 @@
   
 //' Fit a single ridge regression model
 //'
-//' @param X First value
-//' @param y Second value
-//' @param lambda 
+//' @param X Data matrix
+//' @param y Column matrix of responses
+//' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
 //' @return Vector of penalised regression coefficients
 //' @export
 // [[Rcpp::export]]
@@ -21,59 +21,95 @@ arma::vec fit_rr(arma::mat X, arma::mat y, double lambda){
 }
 
 
-//' Calculate leave one out cross validation error (OCV) 
+//' Predict new sample responses using a tuned regression model
 //'
-//' @param X First value
-//' @param y Second value
-//' @param lambda 
+//' @param X Data matrix of test samples
+//' @param beta Vector of regression coefficients
+//' @return Vector of fitted values
 //' @export
 // [[Rcpp::export]]
-double get_ocv(arma::mat X, arma::mat y, double lambda){
-  double n = X.n_cols;
-  arma::mat XtX = X.t() * X;;
-  arma::mat I; I.eye(n, n);
-  // use svd decomp to find Aii
-  arma::mat U;
-  arma::mat V;
-  arma::vec s;
-  svd_econ(U, s, V, X, "left");
-  arma::vec Ad = sum(U * arma::diagmat(s/(pow(s, 2) + lambda)), 1);
-  //arma::vec Ad = arma::diagvec(X * inv(XtX + (lambda * I)) * X.t());
-  arma::mat mu_hat =  X * inv(XtX + (lambda * I)) * X.t() * y;
-  double out = accu(pow(y - mu_hat, 2)/pow(1 - Ad, 2));
+arma::vec predict_rr(arma::mat X, arma::vec beta){
+  return X * beta;
+}
+
+//' Calculate leave one out cross validation error (OCV) for a single regression model
+//'
+//' @param X Data matrix
+//' @param y Column matrix of responses
+//' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
+//' @return Numeric OCV
+//' @export
+// [[Rcpp::export]]
+double get_ocv_once(arma::mat X, arma::mat y, double lambda){
+  double p = X.n_cols;
+  double n = X.n_rows;
+  arma::mat XtX = X.t() * X;
+  arma::mat I; I.eye(p, p);
+  arma::mat A = X * solve(XtX + (lambda * I), X.t());
+  arma::vec Ad = arma::diagvec(A);
+  arma::vec mu_hat =  A * y;
+  double out = sum(pow(y - mu_hat, 2)/pow(1 - Ad, 2))/n;
   return out;
 }
 
+//' Fast calculate leave one out cross validation error (OCV)
+//'
+//' Fast calculate OCV given a singular value decomposition (SVD) decomposition of data matrix X
+//'
+//' @param X Data matrix
+//' @param y Column matrix of responses
+//' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
+//' @param U Matrix U from SVD of X = UDV
+//' @param s Elements of diagonal matrix D from SVD of X = UDV
+//' @return Numeric OCV
+//' @export
+// [[Rcpp::export]]
+double get_ocv(arma::mat X, arma::mat y, double lambda, arma::mat U, arma::vec s){
+  double p = X.n_cols;
+  double n = X.n_rows;
+  arma::vec d = pow(s, 2)/(pow(s, 2) + lambda);
+  arma::mat A = U * arma::diagmat(d) * U.t();
+  arma::vec Ad = arma::diagvec(A);
+  arma::vec mu_hat =  A * y;
+  double out = sum(pow(y - mu_hat, 2)/pow(1 - Ad, 2))/n;
+  return out;
+}
+
+
 //' Find the optimal regularisation parameter through optimised leave one out cross validation
 //'
-//' @param v1 First value
-//' @param v2 Second value
-//' @return Product of v1 and v2
+//' @param X Data matrix
+//' @param y Column matrix of responses
+//' @param lams Vector of regularisation parameters to test
+//' @return Vector of OCVs
 //' @export
 // [[Rcpp::export]]
 arma::vec optim_rr(arma::mat X, arma::mat y, arma::vec lams){
-  double n = lams.n_elem; 
+  //  SVD decomposition of X
+  arma::mat U, V;
+  arma::vec s;
+  arma::svd_econ(U, s, V, X, "left");
+
+  // calculate OCV for each lambda model
+  double n = lams.n_elem;
   arma::vec out(n);
   for (int i = 0; i < n; i++) {
     double lambda = lams[i];
-    out[i] = get_ocv(X, y, lambda);
+    out[i] = get_ocv(X, y, lambda, U, s);
   }
   return out;
 }
 
 
-
-// defining an Rcpp function that uses openMP to parallelise over an index vector of groups 
-// data is split, optim_rr run on each group and a matrix of betas returned (column per group)
-// editing to also return a vector of the selected lambdas
-
 //' Fit a ridge regression model to multiple groups in parallel
 //'
-//' @param X First value
-//' @param y Second value
-//' @param lams First value
-//' @param idx Second value
-//' @return List
+//' @param X Data matrix
+//' @param y Column matrix of responses
+//' @param lams Vector of regularisation parameters to test
+//' @param idx Vector of sample groups 
+//' @return List with two objects
+//' lambdas A vector of the optimal value of lambda for each group
+//' betas A matrix where columns are the fitted regression coefficients for each group 
 //' @export
 // [[Rcpp::export]]
 Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
@@ -116,4 +152,35 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
 }
 
 
+//' Predict new samples using the results from par_reg
+//'
+//' @param X Data matrix of test samples
+//' @param betas Matrix of regression coefficients
+//' @param idx Vector of sample groups, corresponding to the columns of betas
+//' (e.g. idx=c(1, 3) means betas[,1] will be used to predict X[1,], and betas[,3] will be used to predict X[2,])
+//' @return Vector of fitted values
+//' @export
+// [[Rcpp::export]]
+arma::vec predict_groups(arma::mat X, arma::mat betas, arma::vec idx){
+  
+  int n=X.n_rows;
+  int g=betas.n_cols;
+  arma::vec groups = unique(idx);
+  arma::vec y(n);
+  
+  for(int i=0; i<g; i++)
+  {
+    // subset the data
+    int tod = groups[i];
+    arma::uvec rows = find(idx == tod);
+    arma::mat X_sub = X.rows(rows);
+    arma::vec beta = betas.col(i);
+
+    // predict the samples 
+    arma::vec y_sub = predict_rr(X_sub, beta);
+    y.rows(rows) = y_sub;
+  }
+
+  return y;
+}
 

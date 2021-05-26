@@ -19,16 +19,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_ocv
-double get_ocv(arma::mat X, arma::mat y, double lambda);
-RcppExport SEXP _RcppRidge_get_ocv(SEXP XSEXP, SEXP ySEXP, SEXP lambdaSEXP) {
+// predict_rr
+arma::vec predict_rr(arma::mat X, arma::vec beta);
+RcppExport SEXP _RcppRidge_predict_rr(SEXP XSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_rr(X, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_ocv_once
+double get_ocv_once(arma::mat X, arma::mat y, double lambda);
+RcppExport SEXP _RcppRidge_get_ocv_once(SEXP XSEXP, SEXP ySEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_ocv(X, y, lambda));
+    rcpp_result_gen = Rcpp::wrap(get_ocv_once(X, y, lambda));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_ocv
+double get_ocv(arma::mat X, arma::mat y, double lambda, arma::mat U, arma::vec s);
+RcppExport SEXP _RcppRidge_get_ocv(SEXP XSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP USEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type U(USEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_ocv(X, y, lambda, U, s));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -59,6 +86,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// predict_groups
+arma::vec predict_groups(arma::mat X, arma::mat betas, arma::vec idx);
+RcppExport SEXP _RcppRidge_predict_groups(SEXP XSEXP, SEXP betasSEXP, SEXP idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type betas(betasSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type idx(idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_groups(X, betas, idx));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rmvn_omp
 arma::mat rmvn_omp(unsigned int n, arma::vec mu, arma::mat sigma);
 RcppExport SEXP _RcppRidge_rmvn_omp(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
@@ -75,9 +115,12 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RcppRidge_fit_rr", (DL_FUNC) &_RcppRidge_fit_rr, 3},
-    {"_RcppRidge_get_ocv", (DL_FUNC) &_RcppRidge_get_ocv, 3},
+    {"_RcppRidge_predict_rr", (DL_FUNC) &_RcppRidge_predict_rr, 2},
+    {"_RcppRidge_get_ocv_once", (DL_FUNC) &_RcppRidge_get_ocv_once, 3},
+    {"_RcppRidge_get_ocv", (DL_FUNC) &_RcppRidge_get_ocv, 5},
     {"_RcppRidge_optim_rr", (DL_FUNC) &_RcppRidge_optim_rr, 3},
     {"_RcppRidge_par_reg", (DL_FUNC) &_RcppRidge_par_reg, 4},
+    {"_RcppRidge_predict_groups", (DL_FUNC) &_RcppRidge_predict_groups, 3},
     {"_RcppRidge_rmvn_omp", (DL_FUNC) &_RcppRidge_rmvn_omp, 3},
     {NULL, NULL, 0}
 };

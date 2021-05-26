@@ -3,30 +3,57 @@
 
 #' Fit a single ridge regression model
 #'
-#' @param X First value
-#' @param y Second value
-#' @param lambda 
+#' @param X Data matrix
+#' @param y Column matrix of responses
+#' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
 #' @return Vector of penalised regression coefficients
 #' @export
 fit_rr <- function(X, y, lambda) {
     .Call(`_RcppRidge_fit_rr`, X, y, lambda)
 }
 
-#' Calculate leave one out cross validation error (OCV) 
+#' Predict new sample responses using a tuned regression model
 #'
-#' @param X First value
-#' @param y Second value
-#' @param lambda 
+#' @param X Data matrix of test samples
+#' @param beta Vector of regression coefficients
+#' @return Vector of fitted values
 #' @export
-get_ocv <- function(X, y, lambda) {
-    .Call(`_RcppRidge_get_ocv`, X, y, lambda)
+predict_rr <- function(X, beta) {
+    .Call(`_RcppRidge_predict_rr`, X, beta)
+}
+
+#' Calculate leave one out cross validation error (OCV) for a single regression model
+#'
+#' @param X Data matrix
+#' @param y Column matrix of responses
+#' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
+#' @return Numeric OCV
+#' @export
+get_ocv_once <- function(X, y, lambda) {
+    .Call(`_RcppRidge_get_ocv_once`, X, y, lambda)
+}
+
+#' Fast calculate leave one out cross validation error (OCV)
+#'
+#' Fast calculate OCV given a singular value decomposition (SVD) decomposition of data matrix X
+#'
+#' @param X Data matrix
+#' @param y Column matrix of responses
+#' @param lambda Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)
+#' @param U Matrix U from SVD of X = UDV
+#' @param s Elements of diagonal matrix D from SVD of X = UDV
+#' @return Numeric OCV
+#' @export
+get_ocv <- function(X, y, lambda, U, s) {
+    .Call(`_RcppRidge_get_ocv`, X, y, lambda, U, s)
 }
 
 #' Find the optimal regularisation parameter through optimised leave one out cross validation
 #'
-#' @param v1 First value
-#' @param v2 Second value
-#' @return Product of v1 and v2
+#' @param X Data matrix
+#' @param y Column matrix of responses
+#' @param lams Vector of regularisation parameters to test
+#' @return Vector of OCVs
 #' @export
 optim_rr <- function(X, y, lams) {
     .Call(`_RcppRidge_optim_rr`, X, y, lams)
@@ -34,14 +61,28 @@ optim_rr <- function(X, y, lams) {
 
 #' Fit a ridge regression model to multiple groups in parallel
 #'
-#' @param X First value
-#' @param y Second value
-#' @param lams First value
-#' @param idx Second value
-#' @return List
+#' @param X Data matrix
+#' @param y Column matrix of responses
+#' @param lams Vector of regularisation parameters to test
+#' @param idx Vector of sample groups 
+#' @return List with two objects
+#' lambdas A vector of the optimal value of lambda for each group
+#' betas A matrix where columns are the fitted regression coefficients for each group 
 #' @export
 par_reg <- function(X, y, lams, idx) {
     .Call(`_RcppRidge_par_reg`, X, y, lams, idx)
+}
+
+#' Predict new samples using the results from par_reg
+#'
+#' @param X Data matrix of test samples
+#' @param betas Matrix of regression coefficients
+#' @param idx Vector of sample groups, corresponding to the columns of betas
+#' (e.g. idx=c(1, 3) means betas[,1] will be used to predict X[1,], and betas[,3] will be used to predict X[2,])
+#' @return Vector of fitted values
+#' @export
+predict_groups <- function(X, betas, idx) {
+    .Call(`_RcppRidge_predict_groups`, X, betas, idx)
 }
 
 #' Sample from a multivariate Gaussian
