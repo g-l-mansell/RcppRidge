@@ -1,4 +1,4 @@
-context("Clustering")
+context("clustering")
 
 #create a dataset with two clear clusters and check our clustering functions work
 #since they are unsupervised, we check that a table of predicted labels vs real lables has a structure like:

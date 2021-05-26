@@ -5,12 +5,9 @@ This package was developed for a group project (Bristol Compass CDT), to perform
 
 Package created using:
 
-`Rcpp::Rcpp.package.skeleton("RcppRidge")`
-
-`usethis::use_rcpp()`
+`RcppArmadillo.package.skeleton("RcppRidge")`
 
 `usethis::use_test("RcppRidge")`
-
 
 To build the package:
 
@@ -19,7 +16,6 @@ To build the package:
 `system("R CMD build")`
 
 `system("R CMD INSTALL ../RcppRidge")`
-
 
 To update the documentation:
 
