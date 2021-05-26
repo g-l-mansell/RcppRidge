@@ -26,7 +26,7 @@ using namespace arma;
 //' @param mu Second value
 //' @param sigma
 //' @return matrix 
-//' @Imports Rcpp, RcppArmadillo, sitmo, BH, openmp
+//' @export
 // [[Rcpp::export]]
 arma::mat rmvn_omp(unsigned int n, arma::vec mu, arma::mat sigma) {
   

@@ -1,10 +1,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
-
 #include <omp.h>
-#define ARMA_64BIT_WORD 1
 #include <RcppArmadillo.h>
-using namespace arma;
   
   
 //' Fit a single ridge regression model
@@ -13,7 +10,7 @@ using namespace arma;
 //' @param y Second value
 //' @param lambda 
 //' @return Vector of penalised regression coefficients
-//' @Imports Rcpp, RcppArmadillo
+//' @export
 // [[Rcpp::export]]
 arma::vec fit_rr(arma::mat X, arma::mat y, double lambda){
   double n = X.n_cols;
@@ -29,7 +26,7 @@ arma::vec fit_rr(arma::mat X, arma::mat y, double lambda){
 //' @param X First value
 //' @param y Second value
 //' @param lambda 
-//' @Imports Rcpp, RcppArmadillo
+//' @export
 // [[Rcpp::export]]
 double get_ocv(arma::mat X, arma::mat y, double lambda){
   double n = X.n_cols;
@@ -52,8 +49,7 @@ double get_ocv(arma::mat X, arma::mat y, double lambda){
 //' @param v1 First value
 //' @param v2 Second value
 //' @return Product of v1 and v2
-//' @Depends RcppArmadillo
-//' @Imports Rcpp, RcppArmadillo
+//' @export
 // [[Rcpp::export]]
 arma::vec optim_rr(arma::mat X, arma::mat y, arma::vec lams){
   double n = lams.n_elem; 
@@ -78,7 +74,7 @@ arma::vec optim_rr(arma::mat X, arma::mat y, arma::vec lams){
 //' @param lams First value
 //' @param idx Second value
 //' @return List
-//' @Imports Rcpp, RcppArmadillo, openmp
+//' @export
 // [[Rcpp::export]]
 Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
 {
@@ -102,7 +98,7 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
 
     //use optim_rr to find the optimal lambda
     arma::vec ocvs = optim_rr(X_sub, y_sub, lams);
-    uword lam_id = ocvs.index_min(); 
+    arma::uword lam_id = ocvs.index_min(); 
     double opt_lam = lams(lam_id);
     
     //use fit_rr to get the corresponding betas

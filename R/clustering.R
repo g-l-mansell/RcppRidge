@@ -10,7 +10,7 @@
 pca <- function(x, sigma = 1.5) {
   nodes <- dim(x)[1]
   
-  dmat <- dist(x)
+  dmat <- as.matrix(dist(x))
   
   S <- apply(dmat, 1:2, function(x) x / sigma)
   

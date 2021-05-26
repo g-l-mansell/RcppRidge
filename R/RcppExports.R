@@ -7,9 +7,9 @@
 #' @param y Second value
 #' @param lambda 
 #' @return Vector of penalised regression coefficients
-#' @Imports Rcpp, RcppArmadillo
+#' @export
 fit_rr <- function(X, y, lambda) {
-    .Call('_RcppRidge_fit_rr', PACKAGE = 'RcppRidge', X, y, lambda)
+    .Call(`_RcppRidge_fit_rr`, X, y, lambda)
 }
 
 #' Calculate leave one out cross validation error (OCV) 
@@ -17,9 +17,9 @@ fit_rr <- function(X, y, lambda) {
 #' @param X First value
 #' @param y Second value
 #' @param lambda 
-#' @Imports Rcpp, RcppArmadillo
+#' @export
 get_ocv <- function(X, y, lambda) {
-    .Call('_RcppRidge_get_ocv', PACKAGE = 'RcppRidge', X, y, lambda)
+    .Call(`_RcppRidge_get_ocv`, X, y, lambda)
 }
 
 #' Find the optimal regularisation parameter through optimised leave one out cross validation
@@ -27,10 +27,9 @@ get_ocv <- function(X, y, lambda) {
 #' @param v1 First value
 #' @param v2 Second value
 #' @return Product of v1 and v2
-#' @Depends RcppArmadillo
-#' @Imports Rcpp, RcppArmadillo
+#' @export
 optim_rr <- function(X, y, lams) {
-    .Call('_RcppRidge_optim_rr', PACKAGE = 'RcppRidge', X, y, lams)
+    .Call(`_RcppRidge_optim_rr`, X, y, lams)
 }
 
 #' Fit a ridge regression model to multiple groups in parallel
@@ -40,9 +39,9 @@ optim_rr <- function(X, y, lams) {
 #' @param lams First value
 #' @param idx Second value
 #' @return List
-#' @Imports Rcpp, RcppArmadillo, openmp
+#' @export
 par_reg <- function(X, y, lams, idx) {
-    .Call('_RcppRidge_par_reg', PACKAGE = 'RcppRidge', X, y, lams, idx)
+    .Call(`_RcppRidge_par_reg`, X, y, lams, idx)
 }
 
 #' Sample from a multivariate Gaussian
@@ -51,8 +50,8 @@ par_reg <- function(X, y, lams, idx) {
 #' @param mu Second value
 #' @param sigma
 #' @return matrix 
-#' @Imports Rcpp, RcppArmadillo, sitmo, BH, openmp
+#' @export
 rmvn_omp <- function(n, mu, sigma) {
-    .Call('_RcppRidge_rmvn_omp', PACKAGE = 'RcppRidge', n, mu, sigma)
+    .Call(`_RcppRidge_rmvn_omp`, n, mu, sigma)
 }
 
