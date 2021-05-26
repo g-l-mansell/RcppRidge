@@ -43,11 +43,18 @@ arma::vec predict_rr(arma::mat X, arma::vec beta){
 double get_ocv_once(arma::mat X, arma::mat y, double lambda){
   double p = X.n_cols;
   double n = X.n_rows;
-  arma::mat XtX = X.t() * X;
   arma::mat I; I.eye(p, p);
-  arma::mat A = X * solve(XtX + (lambda * I), X.t());
-  arma::vec Ad = arma::diagvec(A);
-  arma::vec mu_hat =  A * y;
+  arma::mat B = (X.t() * X) + (I * lambda);
+  
+  //computing A directly
+  //arma::mat A = X * solve(B, X.t());
+  //arma::vec Ad = arma::diagvec(A);
+  //arma::vec mu_hat =  A * y;
+  
+  //or avoiding storing A
+  arma::vec Ad = arma::diagvec(X * solve(B, X.t()));
+  arma::vec mu_hat = X * solve(B, X.t()) * y;
+  
   double out = sum(pow(y - mu_hat, 2)/pow(1 - Ad, 2))/n;
   return out;
 }
@@ -68,9 +75,16 @@ double get_ocv(arma::mat X, arma::mat y, double lambda, arma::mat U, arma::vec s
   double p = X.n_cols;
   double n = X.n_rows;
   arma::vec d = pow(s, 2)/(pow(s, 2) + lambda);
-  arma::mat A = U * arma::diagmat(d) * U.t();
-  arma::vec Ad = arma::diagvec(A);
-  arma::vec mu_hat =  A * y;
+  
+  //computing A directly
+  // arma::mat A = U * arma::diagmat(d) * U.t();
+  // arma::vec Ad = arma::diagvec(A);
+  // arma::vec mu_hat =  A * y;
+  
+  //or avoiding storing A
+  arma::vec Ad = arma::diagvec(U * arma::diagmat(d) * U.t());
+  arma::vec mu_hat = U * arma::diagmat(d) * U.t() * y;
+  
   double out = sum(pow(y - mu_hat, 2)/pow(1 - Ad, 2))/n;
   return out;
 }

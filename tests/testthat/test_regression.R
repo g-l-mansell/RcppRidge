@@ -3,7 +3,7 @@ context("regression")
 #create a dataset with two with one correlated and one uncorrelated variables to check ridge regression works
 
 n <- 50
-y <- (2 * 1:n) + rnorm(n, 0, 1)
+y <- (2 * 1:n) + rnorm(n, 0, 0.5)
 x_1 <- rnorm(n, 3, 1)
 x_2 <- 0.5 * 1:n + rnorm(n, 0.5, 0.5)
 X <- matrix(c(x_1, x_2), ncol=2)
@@ -40,17 +40,16 @@ test_that("optim rr gives the same results as R and get_ocv_once", {
   lambdas <- exp(seq(-4,4,length=20))
   ocvs <- optim_rr(X, as.matrix(y), lambdas)
   
-  ocvs2 <- numeric(20)
+  ocvs2 <- ocvs3 <- numeric(20)
   for(i in 1:20){
     ocvs2[i] <- ocvR(X, y, lambdas[i])
+    ocvs3[i] <- get_ocv_once(X, as.matrix(y), lambdas[i])
   }
   
-  #plot(log(lambdas), ocvs, type="l", ylim=range(ocvs, ocvs2))
-  #lines(log(lambdas), ocvs2, col=2)
-  all.equal(ocvs, ocvs2)
-
-  opt_lam <- lambdas[which.min(ocvs)]
-  opt_ocv <- get_ocv_once(X, as.matrix(y), opt_lam)
-  expect_equal(opt_ocv, min(ocvs))
+  # plot(log(lambdas), ocvs, type="l", ylim=range(ocvs, ocvs2))
+  # lines(log(lambdas), ocvs2, col=2)
+  # lines(log(lambdas), ocvs3, col=3)
+  expect_equal(c(ocvs), ocvs2)
+  expect_equal(ocvs2, ocvs3)
 })
 
