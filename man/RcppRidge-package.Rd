@@ -1,34 +1,17 @@
 \name{RcppRidge-package}
-\alias{RcppRidge-package}
 \alias{RcppRidge}
 \docType{package}
 \title{
-  A short title line describing what the package does
+  Parallel Bayesian Ridge Regression
 }
 \description{
   A more detailed description of what the package does. A length
   of about one to five lines is recommended.
 }
 \details{
-  This section should provide a more detailed overview of how to use the
-  package, including the most important functions.
+	This package was developed for a group project (Bristol Compass CDT), to perform Bayesian ridge regression using Rcpp and parallel programming. The package is demonstrated on an electricity demand dataset.
 }
 \author{
-Your Name, email optional.
+Euan Enticott, Georgina Mansell, and Conor Newton
+}
 
-Maintainer: Your Name <your@email.com>
-}
-\references{
-  This optional section can contain literature or other references for
-  background information.
-}
-\keyword{ package }
-\seealso{
-  Optional links to other man pages
-}
-\examples{
-  \dontrun{
-     ## Optional simple examples of the most important functions
-     ## These can be in \dontrun{} and \donttest{} blocks.   
-  }
-}
