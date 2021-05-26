@@ -7,8 +7,8 @@ context("Clustering")
 
 n <- 50
 y <- c(rep(1, n), rep(2, n))
-x_1 <- c(rnorm(n, 5, 1), rnorm(n, 10, 1))
-x_2 <- c(rnorm(n, 5, 1), rnorm(n, 10, 1))
+x_1 <- c(rnorm(n, 5, 1), rnorm(n, 12, 1))
+x_2 <- c(rnorm(n, 5, 1), rnorm(n, 12, 1))
 X <- matrix(c(x_1, x_2), ncol=2)
 #plot(x_1, x_2, col=y)
 

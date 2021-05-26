@@ -7,12 +7,14 @@
 optim_rr(X, y, lams)
 }
 \arguments{
-\item{v1}{First value}
+\item{X}{Data matrix}
 
-\item{v2}{Second value}
+\item{y}{Column matrix of responses}
+
+\item{lams}{Vector of regularisation parameters to test}
 }
 \value{
-Product of v1 and v2
+Vector of OCVs
 }
 \description{
 Find the optimal regularisation parameter through optimised leave one out cross validation

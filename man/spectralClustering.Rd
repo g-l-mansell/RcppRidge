@@ -2,16 +2,21 @@
 % Please edit documentation in R/clustering.R
 \name{spectralClustering}
 \alias{spectralClustering}
-\title{Spectral clustering}
+\title{Our implementation of spectral clustering}
 \usage{
 spectralClustering(x, c = 1, k = 10)
 }
 \arguments{
-\item{x}{First value}
+\item{x}{numeric matrix of data, where rows are samples}
+
+\item{c}{}
+
+\item{k}{the number of groups}
 }
 \value{
 vector of groups
 }
 \description{
-Spectral clustering
+Given a data matrix x, samples are clustered into k groups using a spectral (eigen-) decomposition of the graph Laplacian.
+Uses the implementation of kmeans from this package `k_means`.
 }

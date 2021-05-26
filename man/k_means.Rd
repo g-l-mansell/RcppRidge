@@ -2,16 +2,18 @@
 % Please edit documentation in R/clustering.R
 \name{k_means}
 \alias{k_means}
-\title{K means}
+\title{Our implementation of the k-means algorithm}
 \usage{
 k_means(x, centers = 5)
 }
 \arguments{
-\item{x}{First value}
+\item{x}{numeric matrix of data, where rows are samples}
+
+\item{centers}{the number of groups}
 }
 \value{
-vector of groups
+vector of integers indicating the group allocations
 }
 \description{
-K means
+Given an data matrix x, samples are clustered into a given number of groups.
 }

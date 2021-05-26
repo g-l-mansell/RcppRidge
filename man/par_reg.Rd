@@ -7,16 +7,18 @@
 par_reg(X, y, lams, idx)
 }
 \arguments{
-\item{X}{First value}
+\item{X}{Data matrix}
 
-\item{y}{Second value}
+\item{y}{Column matrix of responses}
 
-\item{lams}{First value}
+\item{lams}{Vector of regularisation parameters to test}
 
-\item{idx}{Second value}
+\item{idx}{Vector of sample groups}
 }
 \value{
-List
+List with two objects
+lambdas A vector of the optimal value of lambda for each group
+betas A matrix where columns are the fitted regression coefficients for each group
 }
 \description{
 Fit a ridge regression model to multiple groups in parallel

@@ -2,17 +2,24 @@
 % Please edit documentation in R/RcppExports.R
 \name{get_ocv}
 \alias{get_ocv}
-\title{Calculate leave one out cross validation error (OCV)}
+\title{Fast calculate leave one out cross validation error (OCV)}
 \usage{
-get_ocv(X, y, lambda)
+get_ocv(X, y, lambda, U, s)
 }
 \arguments{
-\item{X}{First value}
+\item{X}{Data matrix}
 
-\item{y}{Second value}
+\item{y}{Column matrix of responses}
 
-\item{lambda}{}
+\item{lambda}{Numeric hyperparameter controlling the strength of the L2 penalisation (non-negative)}
+
+\item{U}{Matrix U from SVD of X = UDV}
+
+\item{s}{Elements of diagonal matrix D from SVD of X = UDV}
+}
+\value{
+Numeric OCV
 }
 \description{
-Calculate leave one out cross validation error (OCV)
+Fast calculate OCV given a singular value decomposition (SVD) decomposition of data matrix X
 }

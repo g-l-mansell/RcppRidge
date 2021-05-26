@@ -7,12 +7,14 @@
 rmvn_omp(n, mu, sigma)
 }
 \arguments{
-\item{n}{First value}
+\item{n}{Integer number of samples to draw}
 
-\item{mu}{Second value}
+\item{mu}{Vector of means}
+
+\item{sigma}{Covariance matrix}
 }
 \value{
-matrix
+Matrix of MVN samples (n rows)
 }
 \description{
 Sample from a multivariate Gaussian
