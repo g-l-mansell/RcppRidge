@@ -1,8 +1,13 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
-#include <omp.h>
 #include <RcppArmadillo.h>
-  
+
+#ifdef _OPENMP
+  #include <omp.h>
+#else
+  #define omp_get_num_threads() 0
+  #define omp_get_thread_num() 0
+#endif
   
 //' Fit a single ridge regression model
 //'
@@ -136,7 +141,7 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
   
   arma::vec opt_lambdas(ncol);
   
-  #pragma omp parallel for
+  #pragma omp parallel for num_threads(omp_get_num_threads())
   for(int i=0; i<ncol; i++)
   {
   

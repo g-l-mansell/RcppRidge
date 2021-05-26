@@ -29,7 +29,7 @@ test_that("k-means correctly finds 2 clusters", {
 
 ## spectral clustering function currently doesn't cluster correctly..
 
-test_that("pca ca1 separates clusters", {
+test_that("pca component 1 separates clusters", {
   pcs <- pca(X)
   y_pred <- pcs[,1] < mean(pcs[,1])
   compare_lables <- table(y_pred, y) 

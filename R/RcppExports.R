@@ -87,10 +87,10 @@ predict_groups <- function(X, betas, idx) {
 
 #' Sample from a multivariate Gaussian
 #'
-#' @param n First value
-#' @param mu Second value
-#' @param sigma
-#' @return matrix 
+#' @param n Integer number of samples to draw
+#' @param mu Vector of means
+#' @param sigma Covariance matrix
+#' @return Matrix of MVN samples (n rows)
 #' @export
 rmvn_omp <- function(n, mu, sigma) {
     .Call(`_RcppRidge_rmvn_omp`, n, mu, sigma)
