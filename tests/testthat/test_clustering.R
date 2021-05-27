@@ -13,7 +13,7 @@ X <- matrix(c(x_1, x_2), ncol=2)
 #plot(x_1, x_2, col=y)
 
 test_that("k-means correctly finds 2 clusters", {
-  y_pred <- k_means(X, 2)
+  y_pred <- k_means(X, 2)$clusters
   compare_lables <- table(y_pred, y) 
   expect_equal(max(compare_lables),  50)
   expect_equal(min(compare_lables),  0)
