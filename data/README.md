@@ -1,10 +1,8 @@
 # About Dataset
 
-Data set on residential electricity demand in Ireland, from the CER Smart Metering Project on Electricity Customer Behaviour Trial <http://www.ucd.ie/issda/data/commissionforenergyregulationcer/>. 
+`Irish.RData` is a dataset of residential electricity demand in Ireland, from the CER Smart Metering Project on Electricity Customer Behaviour Trial <http://www.ucd.ie/issda/data/commissionforenergyregulationcer/>. 
 
-This is a subset of the full data set.
-
-`Irish` is a list containing `indCons`, `survey`, and `extra`
+It contains the list `Irish`, containing `indCons`, `survey`, and `extra`, described in more detail below. The other RData objects are made during the analysis.
 
 ### indCons
 A matrix where each row is the demand for an individual household in kWh.

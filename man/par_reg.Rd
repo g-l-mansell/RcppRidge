@@ -18,7 +18,8 @@ par_reg(X, y, lams, idx)
 \value{
 List with two objects
 lambdas A vector of the optimal value of lambda for each group
-betas A matrix where columns are the fitted regression coefficients for each group
+betas A matrix where columns are the fitted regression coefficients for each group 
+variances A 3D array, where variances[,,1] will be the covariance matrix for B|y for the first model
 }
 \description{
 Fit a ridge regression model to multiple groups in parallel

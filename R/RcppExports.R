@@ -68,6 +68,7 @@ optim_rr <- function(X, y, lams) {
 #' @return List with two objects
 #' lambdas A vector of the optimal value of lambda for each group
 #' betas A matrix where columns are the fitted regression coefficients for each group 
+#' variances A 3D array, where variances[,,1] will be the covariance matrix for B|y for the first model
 #' @export
 par_reg <- function(X, y, lams, idx) {
     .Call(`_RcppRidge_par_reg`, X, y, lams, idx)

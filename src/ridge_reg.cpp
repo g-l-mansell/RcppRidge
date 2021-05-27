@@ -129,6 +129,7 @@ arma::vec optim_rr(arma::mat X, arma::mat y, arma::vec lams){
 //' @return List with two objects
 //' lambdas A vector of the optimal value of lambda for each group
 //' betas A matrix where columns are the fitted regression coefficients for each group 
+//' variances A 3D array, where variances[,,1] will be the covariance matrix for B|y for the first model
 //' @export
 // [[Rcpp::export]]
 Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
@@ -158,6 +159,8 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
     
     //use fit_rr to get the corresponding betas
     arma::vec beta = fit_rr(X_sub, y_sub, opt_lam);
+    
+    //calcualte 
     arma::mat I; I.eye(X_sub.n_cols, X_sub.n_cols);
     auto vr = var(y_sub);
     double v = as_scalar(vr);
@@ -173,7 +176,7 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
 
   return Rcpp::List::create(Rcpp::Named("lambdas")=opt_lambdas,
                             Rcpp::Named("betas")=betas,
-                            Rcpp::Named("Variance") = variances;
+                            Rcpp::Named("variances")=variances);
 }
 
 

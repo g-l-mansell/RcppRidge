@@ -59,9 +59,9 @@ save(cust, surv, extra, file="data/Irish_Processed.RData")
 
 #create a dataset of total demand per time
 df <- extra %>%
-  mutate(demand = rowSums(cust),
-         dow = as.numeric(dow)) %>%
-  select(-time, -date, -dateTime)
+  mutate(demand = rowSums(cust)) %>%
+  select(-time, -date, -dateTime) %>%
+  as.data.frame()
 
 #split input and response
 X <- df[, 1:4]
@@ -72,7 +72,7 @@ mean_y <- mean(y)
 y <- y - mean(y)
 
 #feature transform
-X <- feature_transform(X, factors="dow")
+X <- feature_transform(X)
 
 #remove the last day as a test
 y_test <- y[df$testSet]
