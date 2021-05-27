@@ -1,0 +1,86 @@
+# Load the data and do some simple preprocessing
+library(tidyverse)
+library(lubridate)
+load("data/Irish.RData")
+source("analysis/0_utilityfunctions.R")
+
+cust <- Irish$indCons
+extra <- Irish$extra
+surv <- Irish$survey
+
+#add 1 hour so tod 0 is 00:00 not 23:00
+extra$dateTime <- extra$dateTime + 60*60 
+
+#remove surv$Code and extra$holy since they are constant
+surv$Code <- NULL
+extra$holy <- NULL
+
+#add a date column
+extra$date <- as.Date(extra$dateTime, tz="Europe/Dublin")
+
+#remove last day of 2009 and new years eve 2010
+idx <- extra$date %in% as.Date(c("2010-12-31", "2009-12-30"))
+cust <- cust[!idx,]
+extra <- extra[!idx,]
+rm(idx)
+
+#reorder day of the week factor levels
+extra$dow <- factor(extra$dow, levels=c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+#make survey answers factors and give shorter names
+surv <- rename(surv, 
+               class = SOCIALCLASS,
+               own = OWNERSHIP,
+               built = BUILT.YEAR,
+               heatHome = HEAT.HOME,
+               heatWater = HEAT.WATER,
+               windows = WINDOWS.doubleglazed,
+               whiteGoods = HOME.APPLIANCE..White.goods.,
+               tariff = ResTariffallocation,
+               stimulus = ResStimulusallocation) 
+
+surv$own <- as.factor(surv$own) #2 levels
+surv$heatHome <- as.factor(surv$heatHome) #2 levels
+surv$heatWater <- as.factor(surv$heatWater) #2 levels
+surv$windows <- factor(surv$ windows, levels=c("None", "Quarter", "HalfQuarters", "Half", "All"))
+
+#add a column to extra indicating the last day of the month to use as a hold-out validation set
+extra <- extra %>%
+  mutate(month = month(date)) %>%
+  group_by(month) %>%
+  mutate(lastDay = max(date)) %>%
+  ungroup() %>%
+  mutate(testSet = date==lastDay) %>%
+  select(-lastDay, -month)
+
+
+save(cust, surv, extra, file="data/Irish_Processed.RData")
+
+
+#create a dataset of total demand per time
+df <- extra %>%
+  mutate(demand = rowSums(cust),
+         dow = as.numeric(dow)) %>%
+  select(-time, -date, -dateTime)
+
+#split input and response
+X <- df[, 1:4]
+y <- df$demand
+
+#subtract mean so we dont need an intercept
+mean_y <- mean(y)
+y <- y - mean(y)
+
+#feature transform
+X <- feature_transform(X, factors="dow")
+
+#remove the last day as a test
+y_test <- y[df$testSet]
+X_test <- X[df$testSet,]
+
+y <- y[!df$testSet]
+X <- X[!df$testSet,]
+
+save(df, X, y, X_test, y_test, mean_y, file="data/Irish_Totals.RData")
+
+
