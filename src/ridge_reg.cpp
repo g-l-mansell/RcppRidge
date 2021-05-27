@@ -138,7 +138,7 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
   int ncol = groups.n_elem;
   int nrow = X.n_cols ;
   arma::mat betas(nrow, ncol);
-  
+  arma::cube variances(nrow, nrow, ncol);
   arma::vec opt_lambdas(ncol);
   
   #pragma omp parallel for num_threads(omp_get_num_threads())
@@ -158,16 +158,22 @@ Rcpp::List par_reg(arma::mat X, arma::mat y, arma::vec lams, arma::vec idx)
     
     //use fit_rr to get the corresponding betas
     arma::vec beta = fit_rr(X_sub, y_sub, opt_lam);
+    arma::mat I; I.eye(X_sub.n_cols, X_sub.n_cols);
+    auto vr = var(y_sub);
+    double v = as_scalar(vr);
+    arma::mat Sigma = inv(X_sub.t() * X_sub + (I * opt_lam)) * v;
     
     #pragma omp critical
     {
       opt_lambdas[i] = opt_lam;
       betas.col(i) = beta;
+      variances.slice(i) = Sigma;
     }
   }
 
   return Rcpp::List::create(Rcpp::Named("lambdas")=opt_lambdas,
-                            Rcpp::Named("betas")=betas);
+                            Rcpp::Named("betas")=betas,
+                            Rcpp::Named("Variance") = variances;
 }
 
 
