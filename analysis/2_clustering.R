@@ -3,6 +3,8 @@ library(tidyverse)
 
 load("./data/Irish_Processed.RData")
 
+set.seed(22)
+
 # This takes a minute to run
 # The average demand at each time of day for each customer
 df_avg_tod <- cbind(cust, tod = extra$tod) %>%
@@ -28,7 +30,6 @@ elbow_plot_kmeans <- function(x, kmax = 15) {
 # Creates an elbow plot from the data
 elbow_plot_kmeans(scale(data.matrix(df_avg_tod)), kmax = 15)
 
-
 plot_clusters <- function(data, clusters) {
   x <- as.matrix(data)
   p <- pca(scale(x))
@@ -37,5 +38,9 @@ plot_clusters <- function(data, clusters) {
   ggplot() + geom_point(data = x.pca, aes(x =- X1, y = X2, color = clusters), size = 1) + theme_light() + labs(x = sprintf("PC1 (%.2f %%)", p$energy[1] * 100), y = sprintf("PC2 (%.2f) %%", p$energy[2] * 100))
 }
 
-clusters <- k_means(scale(data.matrix(df_avg_tod)), centers = 5)
-plot_clusters(df_avg_tod, clusters$clusters)
+clusters <- k_means(scale(data.matrix(df_avg_tod)), centers = 5)$clusters
+plot_clusters(df_avg_tod, clusters)
+
+# Save clusters for later use
+names(clusters) <- as.vector(surv$ID)
+save(clusters, file = "./data/clusters.Rdata")

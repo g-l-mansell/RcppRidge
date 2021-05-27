@@ -33,7 +33,7 @@ pca <- function(x) {
 #' @param centers the number of groups
 #' @return returns a list containing: a vector (called clusters) that contains the clusters each row belongs to and a vector (called wcss) containing the within-cluster sum of squares for each cluster.
 #' @export
-k_means <- function(x, centers = 5, seed = 22) {
+k_means <- function(x, centers = 5) {
   if (centers == 1) {
     mean <- colMeans(x)
     # calculate wcss
@@ -47,9 +47,7 @@ k_means <- function(x, centers = 5, seed = 22) {
 
   n <- nrow(x)
 
-  set.seed(seed) # Use the given seed
   centroid <- x[sample(n,centers),]
-  set.seed(NULL) # Reset the seed
   dist_to_centroid <- matrix(NA,ncol=centers,nrow=n)
 
   centroid_new <- matrix(0,nrow=centers,ncol=ncol(x))
