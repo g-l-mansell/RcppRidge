@@ -39,6 +39,8 @@ plot_clusters <- function(data, clusters) {
 }
 
 clusters <- k_means(scale(data.matrix(df_avg_tod)), centers = 5)$clusters
+
+#clusters <- spectralClustering(scale(data.matrix(df_avg_tod)))
 plot_clusters(df_avg_tod, clusters)
 
 # Save clusters for later use

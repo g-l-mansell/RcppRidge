@@ -31,7 +31,9 @@ pca <- function(x) {
 #' 
 #' @param x numeric matrix of data, where rows are samples
 #' @param centers the number of groups
-#' @return returns a list containing: a vector (called clusters) that contains the clusters each row belongs to and a vector (called wcss) containing the within-cluster sum of squares for each cluster.
+#' @return returns a list containing: 
+#'  clusters - a vector containing the cluster for each row x;
+#'  wcss - a vector containing the within-cluster sum of squares for each cluster
 #' @export
 k_means <- function(x, centers = 5) {
   if (centers == 1) {
@@ -68,7 +70,7 @@ k_means <- function(x, centers = 5) {
     }
     
     for(i in 1:centers){
-      centroid[i,] <- colMeans(x[which(cluster==i),])
+      centroid[i,] <- colMeans(x[which(cluster==i), , drop = FALSE])
     }
   }
 
@@ -86,7 +88,7 @@ k_means <- function(x, centers = 5) {
 #' Our implementation of spectral clustering
 #' 
 #' Given a data matrix x, samples are clustered into k groups using a spectral (eigen-) decomposition of the graph Laplacian.
-#' Uses the implementation of kmeans from this package `k_means`.  
+#' Uses the implementation of kmeans from this package `k_means`.
 #' 
 #' @param x numeric matrix of data, where rows are samples
 #' @param c 
@@ -112,7 +114,7 @@ spectralClustering <- function(x, c = 1, k = 10) {
 
   Z <- L.eig$vectors[, 1:k]
 
-  clusters <- k_means(Z, centers = k)
+  clusters <- k_means(Z, centers = k)$clusters
   
   return(clusters)
 }

@@ -19,18 +19,18 @@ test_that("k-means correctly finds 2 clusters", {
   expect_equal(min(compare_lables),  0)
 })
 
-# test_that("spectral clustering correctly finds 2 clusters", {
-#   y_pred <- spectralClustering(X, k=2)
-#   compare_lables <- table(y_pred, y) 
-#   #we expect this to be a table with elements (50, 0 // 0, 50) or (0, 50 // 50, 0)
-#   expect_equal(max(compare_lables),  50)
-#   expect_equal(min(compare_lables),  0)
-# })
+test_that("spectral clustering correctly finds 2 clusters", {
+  y_pred <- spectralClustering(X, k=2)
+  compare_lables <- table(y_pred, y) 
+  #we expect this to be a table with elements (50, 0 // 0, 50) or (0, 50 // 50, 0)
+  expect_equal(max(compare_lables),  50)
+  expect_equal(min(compare_lables),  0)
+})
 
 ## spectral clustering function currently doesn't cluster correctly..
 
 test_that("pca component 1 separates clusters", {
-  pcs <- pca(X)
+  pcs <- pca(X)$PC
   y_pred <- pcs[,1] < mean(pcs[,1])
   compare_lables <- table(y_pred, y) 
   expect_equal(max(compare_lables),  50)
