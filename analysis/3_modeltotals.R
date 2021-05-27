@@ -2,6 +2,7 @@
 library(tidyverse)
 library(RcppRidge)
 load("data/Irish_Totals.RData")
+source("analysis/0_utilityfunctions.R")
 
 #list of lambdas to test
 lambdas <- exp(seq(-2,4,length=20))
@@ -23,13 +24,7 @@ idx_y  <- as.numeric(factor(X_test[, "tod"], levels=levels(factor(X[,"tod"]))))
 y_pred <- predict_groups(X_test, betas, idx_y)
 
 #View the predictions (looks fine)
-par(mfrow=c(3, 4))
-par(mar=c(4,4,2,1))
-for(i in 1:12){
-  plot(0:47, y_test[(i*48-47):(i*48)], type="l", xlab="tod", ylab="demand",
-       ylim=range(y_test, y_pred), main=paste("month", i))
-  lines(0:47, y_pred[(i*48-47):(i*48)], col=2)
-}
+plot_monthly_predictions(y_test, cbind(NA, y_pred, NA))
 
 
 #sample from the posterior distribution of beta to get a credible interval for y predictions
@@ -70,25 +65,9 @@ y_int <- y_int + mean_y
 y_pred <- y_pred + mean_y
 y_test <- y_test + mean_y
 
-#plot the predictions with the upper and lower interval
-par(mfrow=c(3, 4))
-par(mar=c(4,4,2,1))
-for(i in 1:12){
-  #plot observed demand
-  plot(1:48, y_test[(i*48-47):(i*48)], type="l", xlab="tod", ylab="demand",
-       ylim=range(y_test, y_int, na.rm=T), main=paste("month", i))
-  #plot predicted demand in red (these two lines should be identical)
-  lines(1:48, y_int[(i*48-47):(i*48),2], col=2)
-  lines(1:48, y_pred[(i*48-47):(i*48)], col=2)
-  #plot interval with red dashed lines
-  lines(1:48, y_int[(i*48-47):(i*48),1], col=2, lty=2)
-  lines(1:48, y_int[(i*48-47):(i*48),3], col=2, lty=2)
-}
+png("analysis/figures/MontlyPredictionsInterval.png", width=800, height=500)
+plot_monthly_predictions(y_test, y_int)
+dev.off()
 
-
-#how many of the true values fall outside of the interval?
-sum(y_test < apply(y_int, 1, min) | y_test > apply(y_int, 1, max)) / length(y_test)
-#35%
-
-
-save(X_test, y_test, y_pred, y_int, file="data/Total_Predictions.RData")
+MSE <- mean(abs(y_test - y_pred)) / nrow(X_test)
+#[1] 0.1422841

@@ -60,11 +60,10 @@ save(cust, surv, extra, file="data/Irish_Processed.RData")
 #create a dataset of total demand per time
 df <- extra %>%
   mutate(demand = rowSums(cust)) %>%
-  select(-time, -date, -dateTime) %>%
   as.data.frame()
 
 #split input and response
-X <- df[, 1:4]
+X <- df[, 2:5]
 y <- df$demand
 
 #subtract mean so we dont need an intercept

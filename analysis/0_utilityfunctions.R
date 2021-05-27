@@ -53,9 +53,23 @@ feature_transform <- function(X){
   return(X_out)
 }
 
-
-plot_monthly_demand <- function(){
-  
+plot_monthly_predictions <- function(y_test, y_int){
+  par(mfrow=c(3, 4))
+  par(mar=c(4,4,2,1))
+  times <- seq(0, 23.5, 0.5)
+  for(i in 1:12){
+    day_idx <- (i*48-47):(i*48)
+    plot(x=range(times), y=range(y_test, y_int, na.rm=T), type="n", 
+         main=format(ISOdate(2004,i,1),"%b"), xlab="Time of Day", ylab="Demand (kWh)")
+    
+    #plot predicted demand in red
+    lines(times, y_int[day_idx,2], col=2)
+    #plot interval with red dashed lines
+    lines(times, y_int[day_idx,1], col=2, lty=2)
+    lines(times, y_int[day_idx,3], col=2, lty=2)
+    #plot true demand in black last
+    lines(times, y_test[day_idx])
+  }
 }
 
 #etc.
