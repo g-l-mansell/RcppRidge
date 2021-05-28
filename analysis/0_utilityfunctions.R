@@ -70,6 +70,7 @@ plot_monthly_predictions <- function(y_test, y_int){
     #plot true demand in black last
     lines(times, y_test[day_idx])
   }
+  #legend("bottom", legend=c("Observed demand", "Predicted demand", "95% CI"), col=c(1, 2, 2), lty=c(1, 1, 2))
 }
 
 #etc.
