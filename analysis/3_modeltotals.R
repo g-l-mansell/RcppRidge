@@ -85,9 +85,9 @@ y_int <- y_int + mean_y
 y_pred <- y_pred + mean_y
 y_test <- y_test + mean_y
 
-png("analysis/figures/MontlyPredictionsInterval.png", width=800, height=500)
+#png("analysis/figures/MontlyPredictionsInterval.png", width=800, height=500)
 plot_monthly_predictions(y_test, y_int)
-dev.off()
+#dev.off()
 
 (MSE <- mean(abs(y_test - y_pred)) / nrow(X_test))
 #[1] 0.1422841
@@ -104,12 +104,27 @@ pd <- as.data.frame(betas) %>%
 ggplot(pd, aes(x=var, y=coeff)) +
   geom_boxplot(outlier.shape=NA) +
   geom_jitter(aes(colour=tod), size=0.8, alpha=0.8) +
-  labs(title="Betas for 48 total demand models",
-       x=NULL, y="beta", colour="Model") +
+  labs(x=NULL, y="beta", colour="Model") +
   theme_minimal() +
   scale_colour_viridis_c()
+ggsave("analysis/figures/Totals_Betas_48.png", height=4, width=7)
+
 
 
 #test plotting betas_samp for one model
+#for each y take 2.5 and 97.5th percentile values
+beta_int <- matrix(NA, nrow=p, ncol=3)
+colnames(beta_int) <- c("lower", "mean", "upper")
+beta_int[,2] <- colMeans(betas_samp)
+for(j in 1:p){
+  beta_int[j,c(1, 3)] <- quantile(betas_samp[,j], c(.025, .975))
+}
+rownames(beta_int) <- colnames(X)
+
 par(mfrow=c(1,1))
-boxplot(betas_samp, names=colnames(X), ylab="Regression Coefficient", cex.axis=0.8)
+library(forestplot)
+png("analysis/figures/Total_Betas_Intervals.png", width=400, height=500)
+forestplot(beta_int, col=fpColors(box = "darkblue"), 
+           txt_gp = fpTxtGp(label = gpar(fontfamily = "Arial"), ticks = gpar(cex=1)))
+dev.off()
+#boxplot(betas_samp, names=colnames(X), ylab="Regression Coefficient", cex.axis=0.8)
