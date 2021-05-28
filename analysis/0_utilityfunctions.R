@@ -72,9 +72,8 @@ plot_monthly_predictions <- function(y_test, y_int){
   }
 }
 
-# @param out - list containing vector of optimal lambdas, matrix of beta estimates and array of variance matrices
-# X_test - the data that you are predicting on
-#' Our feature transform function
+
+#' Performs a parametric bootstrap to work out confidence intervals
 #' 
 #'@param out a list containing betas, variance and mu
 #'@param X_test test data frame
@@ -86,7 +85,7 @@ boostrap_intervals <- function(out, X_test) {
   colnames(beta_confidence) <- c("lower", "mean", "upper")
   p <- nrow(out$betas)
   for (i in 1:48) {
-    betas_samp <- rmvn_omp(10000, mu=out$betas[,i], sigma=out$Variance[,,i])
+    betas_samp <- rmvn_omp(10000, mu=out$betas[,i], sigma=out$variances[,,i])
     
     #for each parameter take 2.5 and 97.5th percentile values
     beta_mat <- matrix(NA, nrow=nrow(out$betas), ncol=3)
@@ -109,4 +108,25 @@ boostrap_intervals <- function(out, X_test) {
   }
   return(list(y_confidence, beta_confidence))
 }
+
+one_hot_encode <- function(dataframe) {
+  dataframe <- data.frame(dataframe)
+  ids <- NULL
+  for (j in 1:ncol(dataframe)) {
+    if (is.factor(data.frame(dataframe)[,j])) {
+      if (length(levels(dataframe[,j])) > 2) {
+        ids <- append(ids, j)
+        for (i in levels(dataframe[,j])) {
+          dataframe[,paste0(names(dataframe)[j], "_", i)] = as.numeric(dataframe[,j] == i)
+        }
+        
+      }
+      
+    }
+  }
+  
+  dataframe <- select(dataframe, -ids)
+  return(as_tibble(dataframe))
+}
+
 #etc.
