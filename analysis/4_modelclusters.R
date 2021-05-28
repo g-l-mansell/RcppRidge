@@ -1,19 +1,13 @@
 # Load relevant code
 load("data/Irish_Processed.Rdata")
 load("data/clusters.Rdata")
-source("code/bootstrap_intervals.R")
+source("analysis/0_utilityfunctions.R")
 library(RcppRidge)
 library(matrixStats)
-
-rm(Irish)
-rm(df_cluster_1)
-rm(df_cluster_2)
-rm(df_cluster_3)
-rm(df_cluster_4)
-rm(df_cluster_5)
-gc()
-
+library(tidyverse)
+library(lubridate)
 set.seed(59)
+MAE <- vector(length =length(unique(clusters)))
 for (clust in unique(clusters)) {
   # Create the subsample of data from ID's in each cluster
   samp <- cust[,names(clusters[clusters == clust])]
@@ -21,13 +15,13 @@ for (clust in unique(clusters)) {
   # Proceed in same way that we fit 100 customers
   df <- select(extra, -date) %>%
     cbind(samp) %>%
-    pivot_longer(names_to = "ID", c(-time, -toy, -dow, -tod, -temp, -testSet, -dateTime), values_to = "demand" ) %>%
-    left_join(surv, by = "ID") %>%
+    pivot_longer(names_to = "ID", c(-time, -toy, -dow, -tod, -temp, -testSet, -dateTime), values_to = "demand") %>%
+    left_join(surv, by = "ID")  %>%
     mutate(windows = as.numeric(windows),
            tariff = as.numeric(tariff),
            stimulus = as.numeric(stimulus),
            class = as.numeric(class))
-  
+
   df <- one_hot_encode(df)
   #saveRDS(df, "df.rds")
   X <- df %>%
@@ -38,7 +32,7 @@ for (clust in unique(clusters)) {
   y <- df %>% pull(demand)
   
   testset <- df$testSet
-  #rm(df)
+
   rm(samp)
   #feature transform numerical columns of X
   cols <- c(1, 3, 4, 5, 7, 11)
@@ -83,7 +77,7 @@ for (clust in unique(clusters)) {
   idx <- as.numeric(as.factor(X[,"tod"]))
   out <- par_reg(X, as.matrix(y), lambdas, idx)
   
-  saveRDS(out, paste0("data/clusterparams/cluster", clust, ".rds"))
+  saveRDS(out, paste0("analysis/cluster_data/clust", clust, ".rds"))
   
   betas <- out$betas
   out_lambdas <- out$lambdas
@@ -102,6 +96,8 @@ for (clust in unique(clusters)) {
   y_lower <- y_lower + mean_y
   y_upper <- y_upper + mean_y
   
+  saveRDS(interval_results[[2]], paste0("analysis/cluster_data/beta_ints_cluster", clust, ".rds"))
+  
   df <- df %>% mutate(month = month(dateTime, label = TRUE))
   #plot totalof cluster predictions
   
@@ -115,7 +111,7 @@ for (clust in unique(clusters)) {
               y_upper = sum(y_upper),
               cluster = clust)
   
-  saveRDS(res, paste0("data/plot_cluster", clust))
+  saveRDS(res, paste0("analysis/cluster_data/plot_cluster", clust, ".rds"))
   
   monthlyplot <- ggplot(res) + 
     geom_line(aes(x = tod/2, y = y_test, color = "True value")) +
@@ -126,20 +122,10 @@ for (clust in unique(clusters)) {
     xlab("Time of Day (hour)") +
     ylab("Demand (kWh)")
   
-  ggsave(paste0("plots/monthly_predictions_cluster", clust, ".png"), monthlyplot)
+  ggsave(paste0("analysis/figures/monthly_predictions_cluster", clust, ".png"), monthlyplot)
   
-  png(paste0("plots/cluster",  clust, "model.png"), width=1000, height=800)
-  par(mfrow=c(3, 4))
-  par(mar=c(2,2,1,1))
-  for(i in 1:12){
-    plot(0:47, res$y_test[(i*48-47):(i*48)], type="l", xlab="tod", ylab="demand", ylim=range(res$y_test, res$y_pred)) 
-    lines(0:47, res$y_pred[(i*48-47):(i*48)], col=2)
-  }
-  dev.off()
+  MAE[clust] <- mean(abs(res$y_test-res$y_pred))/sum(clusters == clust)
   
-  (MAE <- mean(abs(res$y_test-res$y_pred)))
-  print(MAE)
-  saveRDS(betas, paste0("data/betas", clust, ".rds"))
   rm(res)
   rm(X)
   rm(y)
